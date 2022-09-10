@@ -2,6 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Title>IMLokesh.HttpClient</Title>
+	  <Authors>imlokesh</Authors>
+	  <Description>An http library for dotnet with http2 support and many more features out of the box.  </Description>
+	  <Copyright>Copyright © 2022</Copyright>
+	  <PackageProjectUrl>https://github.com/imlokesh/HttpClient</PackageProjectUrl>
+	  <PackageTags>http;httpclient;dotnet;web scraping;</PackageTags>
+	  <PackageLicenseExpression>Unlicense</PackageLicenseExpression>
+	  <RepositoryUrl>https://github.com/imlokesh/HttpClient</RepositoryUrl>
+	  <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
