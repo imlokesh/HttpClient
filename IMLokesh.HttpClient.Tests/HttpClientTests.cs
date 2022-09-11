@@ -6,7 +6,7 @@ namespace IMLokesh.HttpClient.Tests
         [MemberData(nameof(HttpVersionTestData))]
         public async Task HttpVersionIsCorrect(Version version, string expectedProtocol)
         {
-            var http = new Http() { Version = version };
+            var http = new Http() { Version = version, SwallowExceptions = false };
             var res = await http.RequestAsync("https://http2.pro/api/v1");
             var actualProtocol = res.JObject["protocol"]?.Value<string>();
             Assert.Equal(expectedProtocol, actualProtocol);
@@ -24,7 +24,7 @@ namespace IMLokesh.HttpClient.Tests
         [MemberData(nameof(HttpMethodTestData))]
         public async Task HttpMethodIsCorrect(HttpMethod method, string expectedMethod)
         {
-            var http = new Http();
+            var http = new Http() { SwallowExceptions = false };
             var res = await http.RequestAsync("https://httpbin.org/anything", method);
             var actualMethod = res.JObject["method"]?.Value<string>();
             Assert.Equal(actualMethod, expectedMethod);
