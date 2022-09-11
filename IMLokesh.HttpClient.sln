@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32804.467
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMLokesh.HttpClient", "IMLokesh.HttpClient\IMLokesh.HttpClient.csproj", "{F8B1D685-F5C2-4255-94C4-65960572E1A1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IMLokesh.HttpClient.Tests", "IMLokesh.HttpClient.Tests\IMLokesh.HttpClient.Tests.csproj", "{33E3ED3E-B276-4B95-AB77-DF0732A0ADCD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{F8B1D685-F5C2-4255-94C4-65960572E1A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8B1D685-F5C2-4255-94C4-65960572E1A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8B1D685-F5C2-4255-94C4-65960572E1A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33E3ED3E-B276-4B95-AB77-DF0732A0ADCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33E3ED3E-B276-4B95-AB77-DF0732A0ADCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33E3ED3E-B276-4B95-AB77-DF0732A0ADCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33E3ED3E-B276-4B95-AB77-DF0732A0ADCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
