@@ -1,8 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using System;
 
-namespace IMLokesh.Utilities.HttpClient
+namespace IMLokesh.HttpClient
 {
     public class Proxy
     {
@@ -60,7 +59,7 @@ namespace IMLokesh.Utilities.HttpClient
                     p.Username = proxyParts[2];
                     p.Password = proxyParts[3];
                 }
-                
+
             }
             else
             {

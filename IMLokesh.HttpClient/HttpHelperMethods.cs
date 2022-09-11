@@ -5,10 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IMLokesh.Utilities.HttpClient
+namespace IMLokesh.HttpClient
 {
     public static class HttpHelperMethods
     {

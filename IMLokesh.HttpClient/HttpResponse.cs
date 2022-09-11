@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
-namespace IMLokesh.Utilities.HttpClient
+namespace IMLokesh.HttpClient
 {
     public class HttpResponse
     {
