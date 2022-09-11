@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -186,9 +187,10 @@ namespace IMLokesh.HttpClient
             string referer = null,
             string content = null,
             string contentType = null,
-            string[] additionalHeaders = null,
+            HttpRequestHeaders headers = null,
             HttpContent httpContent = null,
-            bool sendDefaultHeaders = true
+            bool sendDefaultHeaders = true,
+            string downloadFileName = null
             )
         {
             var req = new HttpRequestMessage(method ?? HttpMethod.Get, url);
@@ -203,9 +205,9 @@ namespace IMLokesh.HttpClient
             }
 
             // Add Additional headers
-            if (additionalHeaders != null)
+            if (headers != null)
             {
-                foreach (var header in additionalHeaders.ToHttpRequestHeaders())
+                foreach (var header in headers)
                 {
                     req.Headers.Set(header.Key, header.Value);
                 }

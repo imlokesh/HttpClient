@@ -10,6 +10,11 @@ namespace IMLokesh.HttpClient
 {
     public static class HttpHelperMethods
     {
+
+        /// <summary>
+        /// Returns an instance of HttpRequestHeaders as there is no direct constructor. 
+        /// </summary>
+        /// <returns></returns>
         public static HttpRequestHeaders NewHttpRequestHeaders()
         {
             using (var req = new HttpRequestMessage())
@@ -18,6 +23,11 @@ namespace IMLokesh.HttpClient
             }
         }
 
+        /// <summary>
+        /// Converts an IEnumerable to HttpRequestHeaders. 
+        /// </summary>
+        /// <param name="headers">An IEnumerable with headers in the form <em>key: value</em>.</param>
+        /// <returns></returns>
         public static HttpRequestHeaders ToHttpRequestHeaders(this IEnumerable<string> headers)
         {
             var h = NewHttpRequestHeaders();
@@ -35,12 +45,49 @@ namespace IMLokesh.HttpClient
             return h;
         }
 
+        /// <summary>
+        /// Converts raw header string to HttpRequestHeaders. 
+        /// </summary>
+        /// <param name="headers">Raw http headers, one per line, in <em>key: value</em> format</param>
+        /// <returns></returns>        
+        public static HttpRequestHeaders ToHttpRequestHeaders(this string headers)
+        {
+            var h = NewHttpRequestHeaders();
+            if (string.IsNullOrWhiteSpace(headers))
+            {
+                return h;
+            }
+
+            var lines = headers.Replace("\r\n", "\n").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var header in lines)
+            {
+                if (string.IsNullOrWhiteSpace(header)) continue;
+                var parsed = header.Split(new[] { ':' }, 2);
+                h.Add(parsed[0].Trim(), parsed.Length == 1 ? "" : parsed[1].Trim());
+            }
+
+            return h;
+        }
+
+        /// <summary>
+        /// Sets a header value overwriting any existing value. 
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
         public static void Set(this HttpRequestHeaders headers, string name, string value)
         {
             if (headers.Contains(name)) headers.Remove(name);
             headers.Add(name, value);
         }
 
+        /// <summary>
+        /// Sets a header value overwriting any existing value.
+        /// </summary>
+        /// <param name="headers"></param>
+        /// <param name="name"></param>
+        /// <param name="values"></param>
         public static void Set(this HttpRequestHeaders headers, string name, IEnumerable<string> values)
         {
             if (headers.Contains(name)) headers.Remove(name);
