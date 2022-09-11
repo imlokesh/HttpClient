@@ -252,7 +252,20 @@ namespace IMLokesh.HttpClient
             {
                 using (var res = await HttpClient.SendAsync(req, CancellationToken).ConfigureAwait(false))
                 {
-                    httpResponse.Text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    if (downloadFileName != null)
+                    {
+                        using (var resStream = await res.Content.ReadAsStreamAsync())
+                        {
+                            using (var fs = new FileStream(downloadFileName, FileMode.CreateNew))
+                            {
+                                await resStream.CopyToAsync(fs);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        httpResponse.Text = await res.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    }
                     httpResponse.ContentHeaders = res.Content.Headers;
                     httpResponse.ResponseHeaders = res.Headers;
                     httpResponse.StatusCode = res.StatusCode;
