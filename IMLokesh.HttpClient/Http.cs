@@ -4,9 +4,6 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +20,14 @@ namespace IMLokesh.HttpClient
         {
         }
 
+        /// <summary>
+        /// Event will be called when an HttpResponse is available. 
+        /// </summary>
         public EventHandler<HttpResponseEventArgs> OnResponse { get; set; }
+
+        /// <summary>
+        /// Event will be called just before sending a request.
+        /// </summary>
         public EventHandler<HttpRequestEventArgs> OnRequest { get; set; }
 
         /// <summary>
@@ -41,38 +45,18 @@ namespace IMLokesh.HttpClient
                 HttpClientHandler.ServerCertificateCustomValidationCallback = config.ServerCertificateCustomValidationCallback;
             }
 
-            if (config.AutoRedirect != null)
-            {
-                HttpClientHandler.AllowAutoRedirect = (bool)config.AutoRedirect;
-            }
+            HttpClientHandler.AllowAutoRedirect = config.AutoRedirect;
+            HttpClientHandler.AutomaticDecompression = config.AutomaticDecompression;
+            HttpClient.Timeout = config.Timeout;
+            Version = config.Version;
+            SwallowExceptions = config.SwallowExceptions;
+            Proxy = null;
+            Headers = HttpHelperMethods.NewHttpRequestHeaders();
+            Cookies = config.CreateCookieContainer();
 
-            if (config.SslProtocols != null)
+            foreach (var header in config.Headers)
             {
-                HttpClientHandler.SslProtocols = (SslProtocols)config.SslProtocols;
-            }
-
-            if (config.AutomaticDecompression != null)
-            {
-                HttpClientHandler.AutomaticDecompression = (DecompressionMethods)config.AutomaticDecompression;
-            }
-
-            if (config.Timeout != null)
-            {
-                HttpClient.Timeout = (TimeSpan)config.Timeout;
-            }
-
-            if (config.Version != null)
-            {
-                Version = config.Version;
-            }
-
-            if (config.SwallowExceptions != null)
-            {
-                SwallowExceptions = (bool)config.SwallowExceptions;
-            }
-            else
-            {
-                SwallowExceptions = true;
+                Headers.Add(header.Key, header.Value);
             }
 
             if (config.OnResponse != null)
@@ -84,30 +68,11 @@ namespace IMLokesh.HttpClient
             {
                 OnRequest = config.OnRequest;
             }
-
-            Proxy = null;
-            Cookies = config.CreateCookieContainer();
-
-            Headers = HttpHelperMethods.NewHttpRequestHeaders();
-
-            foreach (var header in config.Headers)
-            {
-                Headers.Add(header.Key, header.Value);
-            }
         }
 
-        public DecompressionMethods AutomaticDecompression
-        {
-            get => HttpClientHandler.AutomaticDecompression;
-            set => HttpClientHandler.AutomaticDecompression = value;
-        }
-
-        public bool AutoRedirect
-        {
-            get => HttpClientHandler.AllowAutoRedirect;
-            set => HttpClientHandler.AllowAutoRedirect = value;
-        }
-
+        /// <summary>
+        /// CookieContainer associated with this client. 
+        /// </summary>
         public CookieContainer Cookies
         {
             get => HttpClientHandler.CookieContainer;
@@ -118,12 +83,29 @@ namespace IMLokesh.HttpClient
             }
         }
 
+        /// <summary>
+        /// This cancellation token will be passed to all requests for this client. 
+        /// </summary>
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
 
+        /// <summary>
+        /// Headers to be sent with each request. 
+        /// </summary>
         public HttpRequestHeaders Headers { get; }
+
+        /// <summary>
+        /// System.Net.Http.HttpClient instance associated with this client. 
+        /// </summary>
         public System.Net.Http.HttpClient HttpClient { get; set; }
+
+        /// <summary>
+        /// HttpClientHandler instance associated with this client. 
+        /// </summary>
         public HttpClientHandler HttpClientHandler { get; set; }
 
+        /// <summary>
+        /// Proxy object associated with this client. 
+        /// </summary>
         public Proxy Proxy
         {
             get => _proxy;
@@ -156,39 +138,48 @@ namespace IMLokesh.HttpClient
             }
         }
 
+        /// <summary>
+        /// ProxyAddress associated with this client.
+        /// </summary>
         public string ProxyAddress
         {
             get => Proxy.ToString();
             set => Proxy = Proxy.Parse(value);
         }
 
-        public Func<HttpRequestMessage, X509Certificate2, X509Chain, SslPolicyErrors, bool> ServerCertificateCustomValidationCallback
-        {
-            get => HttpClientHandler.ServerCertificateCustomValidationCallback;
-            set => HttpClientHandler.ServerCertificateCustomValidationCallback = value;
-        }
-
-        public SslProtocols SslProtocols
-        {
-            get => HttpClientHandler.SslProtocols;
-            set => HttpClientHandler.SslProtocols = value;
-        }
-
+        /// <summary>
+        /// If false, exceptions will be automatically thrown when status code is not between 200-299. You can check HttpResponse.Exception when this is true. Default is true.
+        /// </summary>
         public bool SwallowExceptions { get; set; }
 
+        /// <summary>
+        /// Timeout for requests. Default is 90 seconds. 
+        /// </summary>
         public TimeSpan Timeout
         {
             get => HttpClient.Timeout;
             set => HttpClient.Timeout = value;
         }
 
-        public Version Version { get; set; } = null;
+        /// <summary>
+        /// HttpVersion of requests. Default is 2.0.
+        /// </summary>
+        public Version Version { get; set; }
 
-        public void ClearCookies()
-        {
-            Cookies.Clear();
-        }
-
+        /// <summary>
+        /// Sends request to the specified url.
+        /// </summary>
+        /// <param name="url">Url to send the request to. </param>
+        /// <param name="method">HttpMethod for the request. Default is HttpMethod.Get</param>
+        /// <param name="referer">Referer header for the request. </param>
+        /// <param name="content">String content for the request. </param>
+        /// <param name="contentType">Content type for the request when content is set. </param>
+        /// <param name="headers">Custom headers associated with the request. </param>
+        /// <param name="httpContent">HttpContent to send custom content with he request. Use only one of content or httpContent parameter at once.</param>
+        /// <param name="sendDefaultHeaders">Defaults to true. Set false to not send default headers associated witht he client. </param>
+        /// <param name="downloadFileName">If set, response will be redirected to a file. HttpResponse.Text property will not be set in that event. </param>
+        /// <returns>HttpResponse</returns>
+        /// <exception cref="HttpException"></exception>
         public async Task<HttpResponse> RequestAsync(string url,
             HttpMethod method = null,
             string referer = null,

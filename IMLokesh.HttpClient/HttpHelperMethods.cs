@@ -76,7 +76,7 @@ namespace IMLokesh.HttpClient
         /// <param name="headers"></param>
         /// <param name="name"></param>
         /// <param name="value"></param>
-        public static void Set(this HttpRequestHeaders headers, string name, string value)
+        public static void Set(this HttpHeaders headers, string name, string value)
         {
             if (headers.Contains(name)) headers.Remove(name);
             headers.Add(name, value);
@@ -88,10 +88,22 @@ namespace IMLokesh.HttpClient
         /// <param name="headers"></param>
         /// <param name="name"></param>
         /// <param name="values"></param>
-        public static void Set(this HttpRequestHeaders headers, string name, IEnumerable<string> values)
+        public static void Set(this HttpHeaders headers, string name, IEnumerable<string> values)
         {
             if (headers.Contains(name)) headers.Remove(name);
             headers.Add(name, values);
+        }
+
+        public static string Get(this HttpHeaders headers, string name)
+        {
+            IEnumerable<string> values;
+
+            if (headers.TryGetValues(name, out values))
+            {
+                return string.Join(", ", values);
+            }
+
+            return null;
         }
 
         /// <summary>
