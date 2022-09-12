@@ -94,6 +94,11 @@ namespace IMLokesh.HttpClient
             headers.Add(name, values);
         }
 
+        /// <summary>
+        /// Returns all cookies in a specific CookieContainer.
+        /// </summary>
+        /// <param name="cc">CookieContainer to get cookies from. </param>
+        /// <returns></returns>
         public static List<Cookie> GetAllCookies(this CookieContainer cc)
         {
             List<Cookie> lstCookies = new List<Cookie>();
@@ -104,22 +109,31 @@ namespace IMLokesh.HttpClient
             {
                 SortedList lstCookieCol = (SortedList)pathList.GetType().InvokeMember("m_list", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.GetField | System.Reflection.BindingFlags.Instance, null, pathList, new object[] { });
                 foreach (CookieCollection colCookies in lstCookieCol.Values)
-                foreach (Cookie c in colCookies) lstCookies.Add(c);
+                    foreach (Cookie c in colCookies) lstCookies.Add(c);
             }
 
             return lstCookies;
         }
 
+        /// <summary>
+        /// Gets all uris with at least one cookie in the cookie container. 
+        /// </summary>
+        /// <param name="cc"></param>
+        /// <returns></returns>
         public static List<Uri> GetAllUris(this CookieContainer cc)
         {
             return cc.GetAllCookies().Select(c => c.Domain).Select(d =>
             {
                 d = d.TrimStart('.');
-                return new[] {new Uri("http://" + d), new Uri("https://" + d)};
+                return new[] { new Uri("http://" + d), new Uri("https://" + d) };
             }).SelectMany(u => u).ToList();
 
         }
 
+        /// <summary>
+        /// Deletes all cookies from a CookieContainer. 
+        /// </summary>
+        /// <param name="cc"></param>
         public static void Clear(this CookieContainer cc)
         {
             foreach (var url in cc.GetAllUris())
@@ -131,11 +145,23 @@ namespace IMLokesh.HttpClient
             }
         }
 
+        /// <summary>
+        /// Returns the first cookie with a specific name inside the CookieContainer irrespective of the url of the cookie. 
+        /// </summary>
+        /// <param name="cc"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static Cookie GetCookieByName(this CookieContainer cc, string name)
         {
             return GetCookiesByName(cc, name).FirstOrDefault();
         }
 
+        /// <summary>
+        /// Returns all cookies with a specific name inside the CookieContainer irrespective of the url of the cookie. 
+        /// </summary>
+        /// <param name="cc"></param>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static IEnumerable<Cookie> GetCookiesByName(this CookieContainer cc, string name)
         {
             return cc.GetAllCookies().Where(c => c.Name == name);

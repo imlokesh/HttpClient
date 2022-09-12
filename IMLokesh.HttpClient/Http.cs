@@ -16,6 +16,9 @@ namespace IMLokesh.HttpClient
     {
         private Proxy _proxy;
 
+        /// <summary>
+        /// Creates an instance of Http and sets properties according to HttpConfig.DefaultConfig
+        /// </summary>
         public Http() : this(HttpConfig.DefaultConfig)
         {
         }
@@ -23,6 +26,10 @@ namespace IMLokesh.HttpClient
         public EventHandler<HttpResponseEventArgs> OnResponse { get; set; }
         public EventHandler<HttpRequestEventArgs> OnRequest { get; set; }
 
+        /// <summary>
+        /// Creates an instance of Http and sets properties according to supplied HttpConfig
+        /// </summary>
+        /// <param name="config"></param>
         public Http(HttpConfig config)
         {
             HttpClientHandler = config.CreateHttpHandler();
