@@ -1,7 +1,17 @@
+using System.Net;
+using Xunit.Abstractions;
+
 namespace IMLokesh.HttpClient.Tests
 {
     public class HttpClientTests
     {
+        private readonly ITestOutputHelper Debug;
+
+        public HttpClientTests(ITestOutputHelper output)
+        {
+            Debug = output;
+        }
+
         [Theory]
         [MemberData(nameof(HttpVersionTestData))]
         public async Task HttpVersionIsCorrect(Version version, string expectedProtocol)
@@ -58,13 +68,9 @@ namespace IMLokesh.HttpClient.Tests
         }
 
         [Fact]
-        public async Task DownloadPngFileTest()
+        public async Task CloudflareBlocksRequest()
         {
-            var fileName = "placeholder.png";
-
-            File.Delete(fileName);
-
-            var http = new Http() { SwallowExceptions = false };
+            var http = new Http() { };
 
             var headers = @"sec-ch-ua: ""Google Chrome"";v=""105"", ""Not)A;Brand"";v=""8"", ""Chromium"";v=""105""
 sec-ch-ua-mobile: ?0
@@ -80,11 +86,60 @@ accept-encoding: gzip, deflate, br
 accept-language: en-US,en;q=0.9";
 
             var url = "https://via.placeholder.com/500";
-            await http.RequestAsync(url, downloadFileName: fileName, headers: headers.ToHttpRequestHeaders());
+            var res = await http.RequestAsync(url, headers: headers.ToHttpRequestHeaders());
 
-            Assert.True(File.Exists(fileName));
+            // Debug.WriteLine(JsonConvert.SerializeObject(res, Formatting.Indented));
+            Debug.WriteLine(http.HttpClientHandler.SslProtocols.ToString());
+
+            Assert.Equal(HttpStatusCode.Forbidden, res.StatusCode);
         }
 
+        [Fact]
+        public async Task AutoRedirectOptionShouldWork()
+        {
+            var redirectUrl = "https://api.ipify.org";
+            var testUrl = $"https://httpbin.org/redirect-to?url={WebUtility.UrlEncode(redirectUrl)}";
 
+
+            var http = new Http() { SwallowExceptions = false };
+
+            var res = await http.RequestAsync(testUrl);
+
+            Assert.Equal(redirectUrl, res.RequestUri.ToString().TrimEnd('/'));
+
+
+            http = new Http(new HttpConfig { AutoRedirect = false });
+
+            res = await http.RequestAsync("https://httpbin.org/redirect-to?url=https%3A%2F%2Fapi.ipify.org");
+
+            Assert.Equal(testUrl, res.RequestUri.ToString());
+            Assert.Equal(HttpStatusCode.Redirect, res.StatusCode);
+            Assert.Equal(redirectUrl, res.ResponseHeaders.Get("Location").TrimEnd('/'));
+        }
+
+        [Fact]
+        public async Task ServerCertificateCustomValidationCallbackTest()
+        {
+            var http = new Http() { SwallowExceptions = false };
+
+            var ex = await Assert.ThrowsAsync<HttpException>(async () => await http.RequestAsync("https://expired.badssl.com/"));
+
+            Assert.NotNull(ex);
+            Assert.NotNull(ex.InnerException?.InnerException);
+            Assert.IsType<System.Security.Authentication.AuthenticationException>(ex.InnerException?.InnerException);
+
+            http = new Http(new HttpConfig
+            {
+                ServerCertificateCustomValidationCallback = (req, cert, chain, err) =>
+                {
+                    return true;
+                },
+            })
+            { SwallowExceptions = false };
+
+            var res = await http.RequestAsync("https://expired.badssl.com/");
+
+            Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        }
     }
 }
